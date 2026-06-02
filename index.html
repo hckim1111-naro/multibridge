@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MultiBridge — 주식회사 멀티브릿지</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+KR:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #F9F5EF;
+    --warm-white: #FEFCF9;
+    --stone: #E8E0D5;
+    --taupe: #C4B8A8;
+    --mocha: #8C7B6A;
+    --bark: #5C4A38;
+    --deep: #2A1F14;
+    --blush: #E8C4B0;
+    --rose: #C9896A;
+    --sage: #9BAF98;
+    --gold: #B8965A;
+    --serif: 'Cormorant Garamond', 'Noto Serif KR', Georgia, serif;
+    --sans: 'DM Sans', 'Noto Serif KR', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--warm-white);
+    color: var(--deep);
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    width: 8px; height: 8px;
+    background: var(--rose);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9999;
+    transition: transform 0.1s;
+  }
+  .cursor-ring {
+    width: 32px; height: 32px;
+    border: 1px solid var(--rose);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9998;
+    transition: transform 0.25s, opacity 0.25s;
+    opacity: 0.6;
+  }
+
+  /* Navigation */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.5rem 4rem;
+    transition: background 0.4s, backdrop-filter 0.4s;
+  }
+  nav.scrolled {
+    background: rgba(254,252,249,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--stone);
+  }
+  .nav-logo {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    color: var(--deep);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--rose); }
+  .nav-links {
+    display: flex; gap: 2.5rem; list-style: none;
+    align-items: center;
+  }
+  .nav-links a {
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--bark);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--rose); }
+  .nav-cta {
+    background: var(--deep);
+    color: var(--cream) !important;
+    padding: 0.6rem 1.4rem;
+    border-radius: 2rem;
+    transition: background 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--rose) !important; color: var(--warm-white) !important; }
+
+  /* Hero */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+    position: relative;
+  }
+  .hero-left {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 8rem 4rem 4rem 4rem;
+    background: var(--cream);
+    position: relative;
+    z-index: 2;
+  }
+  .hero-eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--rose);
+    margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 0.8rem;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 2rem; height: 1px;
+    background: var(--rose);
+  }
+  .hero-title {
+    font-family: var(--serif);
+    font-size: clamp(3rem, 5vw, 5rem);
+    font-weight: 300;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: var(--deep);
+    margin-bottom: 2rem;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--rose);
+  }
+  .hero-desc {
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: var(--mocha);
+    max-width: 420px;
+    margin-bottom: 2.5rem;
+  }
+  .hero-btns {
+    display: flex; gap: 1rem; align-items: center;
+  }
+  .btn-primary {
+    display: inline-block;
+    background: var(--deep);
+    color: var(--cream);
+    padding: 0.85rem 2rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 2rem;
+    transition: all 0.3s;
+  }
+  .btn-primary:hover {
+    background: var(--rose);
+    transform: translateY(-2px);
+  }
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--bark);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .btn-ghost:hover { color: var(--rose); }
+  .btn-ghost svg { transition: transform 0.2s; }
+  .btn-ghost:hover svg { transform: translateX(4px); }
+
+  .hero-right {
+    position: relative;
+    overflow: hidden;
+    background: var(--stone);
+  }
+  .hero-visual {
+    width: 100%; height: 100%;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .hero-bg-pattern {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 80% at 60% 50%, rgba(200,137,106,0.12), transparent),
+      radial-gradient(ellipse 40% 60% at 30% 70%, rgba(155,175,152,0.1), transparent);
+  }
+  /* Decorative bottles SVG */
+  .bottle-scene {
+    width: 340px; height: 460px;
+    position: relative; z-index: 2;
+  }
+
+  .hero-scroll {
+    position: absolute; bottom: 2.5rem; left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+    color: var(--taupe); font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase;
+    z-index: 3;
+  }
+  .scroll-line {
+    width: 1px; height: 3rem;
+    background: linear-gradient(to bottom, var(--taupe), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.4; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(0.6); }
+  }
+
+  /* Section commons */
+  section { padding: 7rem 4rem; }
+  .section-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--rose);
+    margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 0.8rem;
+  }
+  .section-label::before {
+    content: '';
+    display: inline-block; width: 1.5rem; height: 1px;
+    background: var(--rose);
+  }
+  .section-title {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 3.5vw, 3.2rem);
+    font-weight: 300;
+    line-height: 1.2;
+    color: var(--deep);
+  }
+  .section-title em {
+    font-style: italic;
+    color: var(--rose);
+  }
+
+  /* Brand Philosophy */
+  .philosophy {
+    background: var(--deep);
+    color: var(--cream);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    align-items: center;
+  }
+  .philosophy .section-label { color: var(--blush); }
+  .philosophy .section-label::before { background: var(--blush); }
+  .philosophy .section-title { color: var(--cream); }
+  .philosophy .section-title em { color: var(--blush); }
+  .philosophy-text {
+    font-size: 1rem;
+    line-height: 1.9;
+    color: var(--taupe);
+    margin-top: 1.5rem;
+  }
+  .philosophy-values {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+  .value-item {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 1.2rem;
+  }
+  .value-num {
+    font-family: var(--serif);
+    font-size: 2rem;
+    font-weight: 300;
+    color: var(--rose);
+    line-height: 1;
+    margin-bottom: 0.4rem;
+  }
+  .value-label {
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cream);
+    margin-bottom: 0.3rem;
+  }
+  .value-desc {
+    font-size: 0.8rem;
+    color: var(--taupe);
+    line-height: 1.5;
+  }
+  .philosophy-right {
+    position: relative;
+  }
+  .philosophy-quote {
+    font-family: var(--serif);
+    font-size: clamp(1.8rem, 3vw, 2.8rem);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.4;
+    color: var(--cream);
+    padding-left: 2rem;
+    border-left: 2px solid var(--rose);
+  }
+  .philosophy-sub {
+    margin-top: 2rem;
+    padding-left: 2rem;
+    font-size: 0.8rem;
+    color: var(--taupe);
+    letter-spacing: 0.1em;
+  }
+
+  /* Products */
+  .products { background: var(--warm-white); }
+  .products-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 4rem;
+  }
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+  .product-card {
+    position: relative;
+    cursor: none;
+    overflow: hidden;
+  }
+  .product-img {
+    aspect-ratio: 3/4;
+    background: var(--stone);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .product-card:hover .product-img { transform: scale(1.03); }
+  .product-badge {
+    position: absolute; top: 1rem; left: 1rem;
+    background: var(--rose);
+    color: var(--warm-white);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.7rem;
+    border-radius: 1rem;
+    z-index: 2;
+  }
+  .product-info { padding: 1.2rem 0 0; }
+  .product-line {
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--mocha);
+    margin-bottom: 0.3rem;
+  }
+  .product-name {
+    font-family: var(--serif);
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: var(--deep);
+    margin-bottom: 0.3rem;
+  }
+  .product-desc {
+    font-size: 0.8rem;
+    color: var(--mocha);
+    line-height: 1.5;
+    margin-bottom: 0.8rem;
+  }
+  .product-price {
+    font-size: 0.9rem;
+    color: var(--bark);
+    font-weight: 500;
+  }
+
+  /* Ingredient Story */
+  .ingredients {
+    background: var(--cream);
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 6rem;
+    align-items: center;
+  }
+  .ingredient-visual {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .ingr-block {
+    border-radius: 2px;
+    overflow: hidden;
+    background: var(--stone);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    transition: transform 0.4s;
+  }
+  .ingr-block:hover { transform: translateY(-4px); }
+  .ingr-block:nth-child(1) { aspect-ratio: 1; background: #D4C8B8; }
+  .ingr-block:nth-child(2) { aspect-ratio: 1; background: #B8CEB5; margin-top: 2rem; }
+  .ingr-block:nth-child(3) { aspect-ratio: 1; background: #C9B89E; }
+  .ingr-block:nth-child(4) { aspect-ratio: 1; background: #DDD0C0; margin-top: -2rem; }
+  .ingr-label {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 0.8rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #fff;
+    font-weight: 400;
+  }
+  .ingr-icon {
+    font-size: 3rem;
+    opacity: 0.25;
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -60%);
+    color: var(--bark);
+  }
+
+  .ingredients-list { margin-top: 2rem; }
+  .ingredient-row {
+    display: flex; align-items: flex-start; gap: 1.2rem;
+    padding: 1.2rem 0;
+    border-bottom: 1px solid var(--stone);
+  }
+  .ingredient-row:last-child { border-bottom: none; }
+  .ingr-num {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    font-weight: 300;
+    color: var(--rose);
+    min-width: 2rem;
+    line-height: 1;
+    margin-top: 2px;
+  }
+  .ingr-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--deep);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 0.2rem;
+  }
+  .ingr-info {
+    font-size: 0.78rem;
+    color: var(--mocha);
+    line-height: 1.5;
+  }
+
+  /* Bridge Story */
+  .bridge-story {
+    background: var(--warm-white);
+    text-align: center;
+    padding: 7rem 8rem;
+  }
+  .bridge-story .section-label { justify-content: center; }
+  .bridge-story .section-label::before { display: none; }
+  .bridge-story .section-title { margin: 0 auto 2rem; max-width: 700px; }
+  .bridge-text {
+    max-width: 620px;
+    margin: 0 auto 4rem;
+    font-size: 1rem;
+    line-height: 1.9;
+    color: var(--mocha);
+  }
+  .bridge-stats {
+    display: flex;
+    justify-content: center;
+    gap: 5rem;
+    padding: 3rem 0;
+    border-top: 1px solid var(--stone);
+    border-bottom: 1px solid var(--stone);
+    margin-bottom: 4rem;
+  }
+  .stat-item { text-align: center; }
+  .stat-num {
+    font-family: var(--serif);
+    font-size: 3.5rem;
+    font-weight: 300;
+    color: var(--deep);
+    line-height: 1;
+    margin-bottom: 0.4rem;
+  }
+  .stat-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--mocha);
+  }
+
+  /* Technology */
+  .technology {
+    background: var(--cream);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    align-items: center;
+  }
+  .tech-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+  }
+  .tech-card {
+    background: var(--warm-white);
+    border: 1px solid var(--stone);
+    border-radius: 2px;
+    padding: 1.5rem;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .tech-card:hover {
+    border-color: var(--rose);
+    transform: translateY(-4px);
+  }
+  .tech-icon {
+    width: 2.5rem; height: 2.5rem;
+    background: var(--blush);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1rem;
+    color: var(--rose);
+    font-size: 1rem;
+  }
+  .tech-card-title {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: var(--deep);
+    margin-bottom: 0.4rem;
+  }
+  .tech-card-desc {
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: var(--mocha);
+  }
+  .tech-right-visual {
+    background: var(--deep);
+    border-radius: 2px;
+    padding: 3rem;
+    color: var(--cream);
+    position: relative;
+    overflow: hidden;
+  }
+  .tech-right-visual::before {
+    content: '';
+    position: absolute;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: rgba(200,137,106,0.08);
+    top: -80px; right: -80px;
+  }
+  .tech-visual-title {
+    font-family: var(--serif);
+    font-size: 1.8rem;
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.3;
+    color: var(--cream);
+    margin-bottom: 2rem;
+    position: relative; z-index: 1;
+  }
+  .tech-process {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    position: relative; z-index: 1;
+  }
+  .process-step {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  .process-num {
+    font-family: var(--serif);
+    font-size: 1.2rem;
+    color: var(--rose);
+    min-width: 1.5rem;
+    line-height: 1.2;
+  }
+  .process-info {}
+  .process-name {
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cream);
+    margin-bottom: 0.2rem;
+  }
+  .process-desc {
+    font-size: 0.75rem;
+    color: var(--taupe);
+    line-height: 1.5;
+  }
+  .process-connector {
+    width: 1px; height: 1.5rem;
+    background: rgba(255,255,255,0.1);
+    margin-left: 0.7rem;
+  }
+
+  /* Collection Banner */
+  .collection-banner {
+    background: var(--deep);
+    padding: 6rem 4rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+  .collection-banner .section-label { color: var(--blush); }
+  .collection-banner .section-label::before { background: var(--blush); }
+  .collection-banner .section-title { color: var(--cream); }
+  .collection-banner .section-title em { color: var(--blush); }
+  .collection-desc {
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    line-height: 1.8;
+    color: var(--taupe);
+    margin-bottom: 2rem;
+  }
+  .collection-items {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  .coll-item {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 2px;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    transition: background 0.3s, border-color 0.3s;
+    cursor: none;
+  }
+  .coll-item:hover {
+    background: rgba(200,137,106,0.1);
+    border-color: rgba(200,137,106,0.3);
+  }
+  .coll-item-icon { font-size: 1.8rem; margin-bottom: 0.6rem; opacity: 0.6; }
+  .coll-item-name {
+    font-family: var(--serif);
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--cream);
+    margin-bottom: 0.2rem;
+  }
+  .coll-item-count {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--taupe);
+  }
+
+  /* About / Story Banner */
+  .about-strip {
+    background: var(--sage);
+    padding: 5rem 4rem;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 4rem;
+    align-items: center;
+  }
+  .about-strip .section-label { color: rgba(255,255,255,0.7); }
+  .about-strip .section-label::before { background: rgba(255,255,255,0.7); }
+  .about-strip .section-title { color: #fff; }
+  .about-strip .section-title em { color: rgba(255,255,255,0.7); font-style: italic; }
+  .about-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+  }
+  .about-col-title {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: #fff;
+    margin-bottom: 0.7rem;
+  }
+  .about-col-text {
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.75);
+  }
+
+  /* Newsletter */
+  .newsletter {
+    background: var(--cream);
+    text-align: center;
+    padding: 6rem 4rem;
+  }
+  .newsletter .section-label { justify-content: center; }
+  .newsletter .section-label::before { display: none; }
+  .newsletter .section-title { margin-bottom: 1rem; }
+  .newsletter-sub {
+    font-size: 0.9rem;
+    color: var(--mocha);
+    margin-bottom: 2.5rem;
+  }
+  .newsletter-form {
+    display: flex;
+    max-width: 460px;
+    margin: 0 auto;
+    gap: 0;
+    border: 1px solid var(--taupe);
+    border-radius: 3rem;
+    overflow: hidden;
+    background: var(--warm-white);
+    transition: border-color 0.2s;
+  }
+  .newsletter-form:focus-within { border-color: var(--rose); }
+  .newsletter-form input {
+    flex: 1;
+    border: none; outline: none;
+    background: transparent;
+    padding: 0.9rem 1.5rem;
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    color: var(--deep);
+  }
+  .newsletter-form input::placeholder { color: var(--taupe); }
+  .newsletter-form button {
+    background: var(--deep);
+    color: var(--cream);
+    border: none;
+    padding: 0.9rem 1.8rem;
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: none;
+    border-radius: 0 3rem 3rem 0;
+    transition: background 0.2s;
+  }
+  .newsletter-form button:hover { background: var(--rose); }
+
+  /* Footer */
+  footer {
+    background: var(--deep);
+    color: var(--taupe);
+    padding: 5rem 4rem 2.5rem;
+  }
+  .footer-top {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 4rem;
+  }
+  .footer-brand {}
+  .footer-logo {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    color: var(--cream);
+    margin-bottom: 0.8rem;
+  }
+  .footer-logo span { color: var(--rose); }
+  .footer-tagline {
+    font-size: 0.8rem;
+    font-style: italic;
+    color: var(--taupe);
+    margin-bottom: 1.5rem;
+  }
+  .footer-social {
+    display: flex; gap: 0.8rem;
+  }
+  .social-btn {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--taupe);
+    text-decoration: none;
+    font-size: 0.75rem;
+    transition: all 0.2s;
+  }
+  .social-btn:hover {
+    border-color: var(--rose);
+    color: var(--rose);
+  }
+  .footer-col-title {
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cream);
+    margin-bottom: 1.5rem;
+  }
+  .footer-links {
+    list-style: none;
+    display: flex; flex-direction: column; gap: 0.7rem;
+  }
+  .footer-links a {
+    font-size: 0.82rem;
+    color: var(--taupe);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--cream); }
+  .footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding-top: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.25);
+  }
+  .footer-certify {
+    display: flex; gap: 1.5rem;
+  }
+  .cert-tag {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.2);
+  }
+  .cert-tag::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--sage);
+    opacity: 0.5;
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-up {
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards;
+  }
+  .delay-1 { animation-delay: 0.15s; }
+  .delay-2 { animation-delay: 0.3s; }
+  .delay-3 { animation-delay: 0.45s; }
+  .delay-4 { animation-delay: 0.6s; }
+
+  /* Reveal on scroll */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* Mobile */
+  @media (max-width: 900px) {
+    nav { padding: 1.2rem 1.5rem; }
+    .nav-links { display: none; }
+    .hero { grid-template-columns: 1fr; }
+    .hero-right { display: none; }
+    .hero-left { padding: 7rem 1.5rem 4rem; }
+    section { padding: 4rem 1.5rem; }
+    .philosophy, .ingredients, .technology, .collection-banner, .bridge-story, .about-strip { grid-template-columns: 1fr; gap: 3rem; }
+    .bridge-story { padding: 5rem 1.5rem; }
+    .bridge-stats { gap: 2rem; flex-wrap: wrap; }
+    .products-grid { grid-template-columns: 1fr 1fr; }
+    .footer-top { grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .footer-bottom { flex-direction: column; gap: 1rem; text-align: center; }
+    body { cursor: auto; }
+    .cursor, .cursor-ring { display: none; }
+    button, a { cursor: pointer !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Navigation -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">Multi<span>Bridge</span></a>
+  <ul class="nav-links">
+    <li><a href="#products">Collection</a></li>
+    <li><a href="#ingredients">Ingredients</a></li>
+    <li><a href="#technology">Technology</a></li>
+    <li><a href="#story">Our Story</a></li>
+    <li><a href="#contact" class="nav-cta">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-left">
+    <p class="hero-eyebrow fade-up">주식회사 멀티브릿지</p>
+    <h1 class="hero-title fade-up delay-1">
+      Where <em>Nature</em><br>Meets<br><em>Science</em>
+    </h1>
+    <p class="hero-desc fade-up delay-2">
+      자연의 순수함과 첨단 과학의 정밀함이 만나는 곳.<br>
+      MultiBridge는 피부와 자연 사이의 완벽한 다리를 만듭니다.
+    </p>
+    <div class="hero-btns fade-up delay-3">
+      <a href="#products" class="btn-primary">컬렉션 보기</a>
+      <a href="#story" class="btn-ghost">
+        Our Story
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-visual">
+      <div class="hero-bg-pattern"></div>
+      <!-- Decorative SVG scene -->
+      <svg class="bottle-scene" viewBox="0 0 340 460" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Main bottle -->
+        <rect x="120" y="80" width="90" height="280" rx="45" fill="#F9F5EF" opacity="0.9"/>
+        <rect x="130" y="70" width="70" height="30" rx="10" fill="#E8E0D5"/>
+        <rect x="145" y="55" width="40" height="20" rx="8" fill="#C4B8A8"/>
+        <rect x="155" y="45" width="20" height="15" rx="4" fill="#8C7B6A"/>
+        <!-- Bottle label -->
+        <text x="165" y="195" font-family="Cormorant Garamond, Georgia, serif" font-size="11" fill="#5C4A38" text-anchor="middle" font-style="italic">Multi</text>
+        <text x="165" y="210" font-family="Cormorant Garamond, Georgia, serif" font-size="11" fill="#5C4A38" text-anchor="middle" font-style="italic">Bridge</text>
+        <line x1="140" y1="222" x2="190" y2="222" stroke="#C9896A" stroke-width="0.7"/>
+        <text x="165" y="235" font-family="DM Sans, sans-serif" font-size="7" fill="#8C7B6A" text-anchor="middle" letter-spacing="2">ESSENCE SERUM</text>
+        <!-- Small bottle left -->
+        <rect x="55" y="160" width="55" height="160" rx="27" fill="#F0E8DC" opacity="0.85"/>
+        <rect x="62" y="152" width="41" height="16" rx="6" fill="#E8E0D5"/>
+        <rect x="71" y="142" width="23" height="14" rx="4" fill="#C4B8A8"/>
+        <text x="83" y="237" font-family="Cormorant Garamond, Georgia, serif" font-size="7" fill="#8C7B6A" text-anchor="middle" font-style="italic">Toner</text>
+        <!-- Small bottle right -->
+        <rect x="220" y="140" width="60" height="170" rx="15" fill="#EBE3D5" opacity="0.9"/>
+        <rect x="226" y="130" width="48" height="16" rx="5" fill="#DDD0C0"/>
+        <rect x="235" y="118" width="30" height="16" rx="4" fill="#C4B8A8"/>
+        <text x="250" y="225" font-family="Cormorant Garamond, Georgia, serif" font-size="7" fill="#8C7B6A" text-anchor="middle" font-style="italic">Cream</text>
+        <!-- Decorative elements -->
+        <circle cx="80" cy="120" r="3" fill="#C9896A" opacity="0.4"/>
+        <circle cx="270" cy="100" r="5" fill="#9BAF98" opacity="0.35"/>
+        <circle cx="290" cy="350" r="4" fill="#C9896A" opacity="0.3"/>
+        <circle cx="60" cy="380" r="6" fill="#B8965A" opacity="0.2"/>
+        <!-- Leaf decoration -->
+        <ellipse cx="300" cy="180" rx="18" ry="30" fill="#9BAF98" opacity="0.3" transform="rotate(25 300 180)"/>
+        <ellipse cx="50" cy="300" rx="12" ry="22" fill="#9BAF98" opacity="0.25" transform="rotate(-20 50 300)"/>
+        <!-- Shadow -->
+        <ellipse cx="165" cy="390" rx="70" ry="12" fill="#2A1F14" opacity="0.06"/>
+      </svg>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </div>
+</section>
+
+<!-- Philosophy Section -->
+<section class="philosophy" id="story">
+  <div>
+    <p class="section-label reveal">Brand Philosophy</p>
+    <h2 class="section-title reveal">피부와 자연을<br><em>연결하는 다리</em></h2>
+    <p class="philosophy-text reveal">
+      MultiBridge는 '다리'라는 이름처럼, 자연의 원료와 현대 피부과학 사이의 간극을 연결합니다.
+      인체에 순하고 환경에 지속가능한 방식으로, 모든 피부 타입을 위한 솔루션을 제공합니다.
+    </p>
+    <div class="philosophy-values reveal">
+      <div class="value-item">
+        <div class="value-num">98%</div>
+        <div class="value-label">Natural Origin</div>
+        <div class="value-desc">천연 유래 원료 비율</div>
+      </div>
+      <div class="value-item">
+        <div class="value-num">0%</div>
+        <div class="value-label">Harmful Additives</div>
+        <div class="value-desc">유해 첨가물 불포함</div>
+      </div>
+      <div class="value-item">
+        <div class="value-num">12+</div>
+        <div class="value-label">Clinical Tests</div>
+        <div class="value-desc">임상 시험 완료</div>
+      </div>
+      <div class="value-item">
+        <div class="value-num">Eco</div>
+        <div class="value-label">Sustainable</div>
+        <div class="value-desc">친환경 패키징 100%</div>
+      </div>
+    </div>
+  </div>
+  <div class="philosophy-right reveal">
+    <p class="philosophy-quote">
+      "진정한 아름다움은 자연으로부터, 지속가능성으로부터 시작됩니다."
+    </p>
+    <p class="philosophy-sub">— MultiBridge Founding Principle, 2015</p>
+    <div style="margin-top:3rem; padding:2rem; border:1px solid rgba(255,255,255,0.06); border-radius:2px;">
+      <p style="font-size:0.78rem; line-height:1.7; color:var(--taupe);">
+        서울 강남구 본사를 중심으로, 제주 원료 연구소와 인천 생산 시설을 연결하는
+        멀티브릿지만의 K-뷰티 공급망을 통해 최고 품질의 원료를 관리합니다.
+      </p>
+      <div style="margin-top:1.5rem; display:flex; gap:1.5rem;">
+        <div>
+          <div style="font-size:0.65rem; letter-spacing:0.15em; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-bottom:0.3rem;">Founded</div>
+          <div style="font-size:0.9rem; color:var(--cream);">2015</div>
+        </div>
+        <div>
+          <div style="font-size:0.65rem; letter-spacing:0.15em; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-bottom:0.3rem;">HQ</div>
+          <div style="font-size:0.9rem; color:var(--cream);">Seoul, Korea</div>
+        </div>
+        <div>
+          <div style="font-size:0.65rem; letter-spacing:0.15em; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-bottom:0.3rem;">Export</div>
+          <div style="font-size:0.9rem; color:var(--cream);">32 Countries</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Products Section -->
+<section class="products" id="products">
+  <div class="products-header reveal">
+    <div>
+      <p class="section-label">Signature Collection</p>
+      <h2 class="section-title">대표 <em>제품</em></h2>
+    </div>
+    <a href="#" class="btn-ghost">
+      전체 보기
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+  </div>
+  <div class="products-grid">
+    <div class="product-card reveal">
+      <div class="product-img">
+        <div class="product-badge">BEST</div>
+        <svg width="80" height="180" viewBox="0 0 80 180" fill="none">
+          <rect x="20" y="40" width="40" height="120" rx="20" fill="#C4B8A8" opacity="0.6"/>
+          <rect x="25" y="35" width="30" height="12" rx="5" fill="#B4A898"/>
+          <rect x="30" y="27" width="20" height="10" rx="3" fill="#A09080"/>
+          <text x="40" y="100" font-family="serif" font-size="9" fill="#5C4A38" text-anchor="middle" font-style="italic">MB</text>
+        </svg>
+      </div>
+      <div class="product-info">
+        <p class="product-line">Moisture Bridge</p>
+        <h3 class="product-name">Deep Hydration Serum</h3>
+        <p class="product-desc">제주 용암수와 히알루론산 3중 복합체</p>
+        <p class="product-price">₩68,000</p>
+      </div>
+    </div>
+    <div class="product-card reveal delay-1">
+      <div class="product-img" style="background:#D4C8B8;">
+        <div class="product-badge" style="background:#9BAF98;">NEW</div>
+        <svg width="80" height="180" viewBox="0 0 80 180" fill="none">
+          <rect x="22" y="50" width="36" height="100" rx="8" fill="#B8CEB5" opacity="0.7"/>
+          <rect x="26" y="44" width="28" height="12" rx="4" fill="#A8B8A5"/>
+          <rect x="30" y="35" width="20" height="12" rx="4" fill="#98A895"/>
+          <text x="40" y="105" font-family="serif" font-size="9" fill="#3C5C3A" text-anchor="middle" font-style="italic">MB</text>
+        </svg>
+      </div>
+      <div class="product-info">
+        <p class="product-line">Green Bridge</p>
+        <h3 class="product-name">Calming Ampoule</h3>
+        <p class="product-desc">녹차 줄기세포 추출물 진정 앰플</p>
+        <p class="product-price">₩82,000</p>
+      </div>
+    </div>
+    <div class="product-card reveal delay-2">
+      <div class="product-img" style="background:#E0D0C4;">
+        <svg width="80" height="180" viewBox="0 0 80 180" fill="none">
+          <ellipse cx="40" cy="120" rx="25" ry="30" fill="#D4B8A4" opacity="0.7"/>
+          <rect x="30" y="80" width="20" height="45" rx="5" fill="#C8A890" opacity="0.8"/>
+          <ellipse cx="40" cy="82" rx="10" ry="6" fill="#B89878" opacity="0.9"/>
+          <rect x="35" y="70" width="10" height="14" rx="3" fill="#A88868"/>
+          <text x="40" y="115" font-family="serif" font-size="7" fill="#5C3C28" text-anchor="middle" font-style="italic">MB</text>
+        </svg>
+      </div>
+      <div class="product-info">
+        <p class="product-line">Gold Bridge</p>
+        <h3 class="product-name">Ginseng Cream</h3>
+        <p class="product-desc">홍삼 발효 추출물 집중 영양 크림</p>
+        <p class="product-price">₩124,000</p>
+      </div>
+    </div>
+    <div class="product-card reveal delay-3">
+      <div class="product-img" style="background:#DDD0C8;">
+        <svg width="80" height="180" viewBox="0 0 80 180" fill="none">
+          <rect x="15" y="60" width="50" height="90" rx="5" fill="#E8D8C8" opacity="0.8"/>
+          <rect x="20" y="54" width="40" height="12" rx="3" fill="#D8C8B8"/>
+          <text x="40" y="112" font-family="serif" font-size="7" fill="#6C4C3C" text-anchor="middle" font-style="italic">MB Sun</text>
+          <line x1="25" y1="122" x2="55" y2="122" stroke="#C9896A" stroke-width="0.5"/>
+          <text x="40" y="132" font-family="sans-serif" font-size="5.5" fill="#8C7B6A" text-anchor="middle" letter-spacing="1">SPF 50+</text>
+        </svg>
+      </div>
+      <div class="product-info">
+        <p class="product-line">Shield Bridge</p>
+        <h3 class="product-name">UV Guard Sunscreen</h3>
+        <p class="product-desc">무기자차 SPF50+ PA++++ 선크림</p>
+        <p class="product-price">₩45,000</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Ingredient Story -->
+<section class="ingredients" id="ingredients">
+  <div class="ingredient-visual reveal">
+    <div class="ingr-block">
+      <div class="ingr-icon">🌿</div>
+      <div class="ingr-label">Jeju Green Tea</div>
+    </div>
+    <div class="ingr-block">
+      <div class="ingr-icon">💧</div>
+      <div class="ingr-label">Volcanic Water</div>
+    </div>
+    <div class="ingr-block">
+      <div class="ingr-icon">🌹</div>
+      <div class="ingr-label">Rose Hip</div>
+    </div>
+    <div class="ingr-block">
+      <div class="ingr-icon">🌾</div>
+      <div class="ingr-label">Red Ginseng</div>
+    </div>
+  </div>
+  <div class="reveal">
+    <p class="section-label">Key Ingredients</p>
+    <h2 class="section-title">자연에서 찾은<br><em>핵심 성분</em></h2>
+    <div class="ingredients-list">
+      <div class="ingredient-row">
+        <div class="ingr-num">01</div>
+        <div>
+          <div class="ingr-name">제주 화산 용암수</div>
+          <div class="ingr-info">풍부한 미네랄과 트레이스 엘리먼트를 함유한 제주 화산 지층수로 피부 장벽 강화 및 수분 유지력 향상</div>
+        </div>
+      </div>
+      <div class="ingredient-row">
+        <div class="ingr-num">02</div>
+        <div>
+          <div class="ingr-name">녹차 줄기세포 추출물</div>
+          <div class="ingr-info">제주산 유기농 녹차 줄기세포에서 추출한 강력한 항산화 성분으로 피부 재생 및 탄력 개선</div>
+        </div>
+      </div>
+      <div class="ingredient-row">
+        <div class="ingr-num">03</div>
+        <div>
+          <div class="ingr-name">홍삼 발효 복합체</div>
+          <div class="ingr-info">6년근 홍삼을 특허 기술로 발효한 Ginsenoside Rx Complex로 피부 영양 공급 및 노화 방지</div>
+        </div>
+      </div>
+      <div class="ingredient-row">
+        <div class="ingr-num">04</div>
+        <div>
+          <div class="ingr-name">Tri-HA Complex</div>
+          <div class="ingr-info">3가지 분자량의 히알루론산 복합체로 표피층부터 진피층까지 다층적 수분 충전</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Bridge Story Stats -->
+<section class="bridge-story" id="about">
+  <p class="section-label reveal">Company Story</p>
+  <h2 class="section-title reveal">10년의 연구,<br><em>하나의 철학</em></h2>
+  <p class="bridge-text reveal">
+    2015년 서울에서 시작된 멀티브릿지는 피부과학 전문가들이 설립한 K-뷰티 연구 기반 기업입니다.
+    "자연과 과학 사이의 다리"라는 창립 이념 아래, 제주도의 청정 원료와
+    서울의 첨단 기술력을 연결하여 효과와 안전성을 동시에 갖춘 제품을 만들어왔습니다.
+  </p>
+  <div class="bridge-stats reveal">
+    <div class="stat-item">
+      <div class="stat-num">32</div>
+      <div class="stat-label">수출 국가</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">150+</div>
+      <div class="stat-label">제품 라인업</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">1.2M</div>
+      <div class="stat-label">글로벌 고객</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">28</div>
+      <div class="stat-label">등록 특허</div>
+    </div>
+  </div>
+  <a href="#contact" class="btn-primary reveal">파트너십 문의</a>
+</section>
+
+<!-- Technology Section -->
+<section class="technology" id="technology">
+  <div>
+    <p class="section-label reveal">R&D Technology</p>
+    <h2 class="section-title reveal">특허 기술이 만드는<br><em>차별화된 성능</em></h2>
+    <p class="reveal" style="margin-top:1rem;font-size:0.88rem;line-height:1.8;color:var(--mocha);">
+      멀티브릿지 R&D 센터는 원료 개발부터 안정성 평가까지 전 공정을 자체 관리합니다.
+    </p>
+    <div class="tech-grid reveal">
+      <div class="tech-card">
+        <div class="tech-icon">🔬</div>
+        <div class="tech-card-title">BioBridge™ 기술</div>
+        <div class="tech-card-desc">생체 모방 기술을 통한 피부 흡수율 340% 향상</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">🌿</div>
+        <div class="tech-card-title">Cold Extraction</div>
+        <div class="tech-card-desc">저온 추출로 유효성분 활성도 최대 보존</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">♻️</div>
+        <div class="tech-card-title">EcoFormula</div>
+        <div class="tech-card-desc">생분해 가능 포뮬러 100% 환경 인증 획득</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">🧬</div>
+        <div class="tech-card-title">Microbiome</div>
+        <div class="tech-card-desc">피부 마이크로바이옴 친화 성분 처방 시스템</div>
+      </div>
+    </div>
+  </div>
+  <div class="tech-right-visual reveal">
+    <div class="tech-visual-title">
+      "From Jeju Island<br>to the World"
+    </div>
+    <div class="tech-process">
+      <div class="process-step">
+        <div class="process-num">01</div>
+        <div class="process-info">
+          <div class="process-name">Raw Material Sourcing</div>
+          <div class="process-desc">제주 청정 지역 계약 농장 원료 수급</div>
+        </div>
+      </div>
+      <div class="process-connector"></div>
+      <div class="process-step">
+        <div class="process-num">02</div>
+        <div class="process-info">
+          <div class="process-name">Biotech Extraction</div>
+          <div class="process-desc">특허 저온 추출 및 발효 기술 적용</div>
+        </div>
+      </div>
+      <div class="process-connector"></div>
+      <div class="process-step">
+        <div class="process-num">03</div>
+        <div class="process-info">
+          <div class="process-name">Clinical Validation</div>
+          <div class="process-desc">서울대병원 피부과 임상 협력 검증</div>
+        </div>
+      </div>
+      <div class="process-connector"></div>
+      <div class="process-step">
+        <div class="process-num">04</div>
+        <div class="process-info">
+          <div class="process-name">Global Distribution</div>
+          <div class="process-desc">32개국 프리미엄 채널 수출</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Collection Banner -->
+<section class="collection-banner" id="collections">
+  <div>
+    <p class="section-label reveal">Product Lines</p>
+    <h2 class="section-title reveal">모든 피부를 위한<br><em>브릿지 라인</em></h2>
+    <p class="collection-desc reveal">
+      피부 고민과 타입별로 세분화된 MultiBridge의 6가지 시그니처 라인을 만나보세요.
+      자연의 힘으로 설계된 완전한 스킨케어 루틴.
+    </p>
+    <a href="#" class="btn-primary reveal">전체 라인 탐색</a>
+  </div>
+  <div class="collection-items reveal">
+    <div class="coll-item">
+      <div class="coll-item-icon">💧</div>
+      <div class="coll-item-name">Moisture</div>
+      <div class="coll-item-count">12 Products</div>
+    </div>
+    <div class="coll-item">
+      <div class="coll-item-icon">✨</div>
+      <div class="coll-item-name">Brightening</div>
+      <div class="coll-item-count">9 Products</div>
+    </div>
+    <div class="coll-item">
+      <div class="coll-item-icon">🌿</div>
+      <div class="coll-item-name">Calming</div>
+      <div class="coll-item-count">8 Products</div>
+    </div>
+    <div class="coll-item">
+      <div class="coll-item-icon">🕰️</div>
+      <div class="coll-item-name">Anti-Age</div>
+      <div class="coll-item-count">11 Products</div>
+    </div>
+    <div class="coll-item">
+      <div class="coll-item-icon">☀️</div>
+      <div class="coll-item-name">Sun Care</div>
+      <div class="coll-item-count">6 Products</div>
+    </div>
+    <div class="coll-item">
+      <div class="coll-item-icon">🧴</div>
+      <div class="coll-item-name">Body</div>
+      <div class="coll-item-count">14 Products</div>
+    </div>
+  </div>
+</section>
+
+<!-- About Strip -->
+<section class="about-strip">
+  <div>
+    <p class="section-label reveal">Why MultiBridge</p>
+    <h2 class="section-title reveal">믿을 수 있는<br><em>선택</em></h2>
+  </div>
+  <div class="about-columns reveal">
+    <div>
+      <div class="about-col-title">인증 & 수상</div>
+      <div class="about-col-text">
+        ISO 22716 우수화장품 제조 인증<br>
+        EWG 그린 등급 전 성분 인증<br>
+        2024 K-뷰티 혁신 대상 수상<br>
+        비건 화장품 국제 인증 완료
+      </div>
+    </div>
+    <div>
+      <div class="about-col-title">글로벌 파트너</div>
+      <div class="about-col-text">
+        세포라(Sephora) 아시아 입점<br>
+        일본 로프트(Loft) 공식 파트너<br>
+        유럽 11개국 파마시 채널 공급<br>
+        미국 울타뷰티(Ulta Beauty) 협력
+      </div>
+    </div>
+    <div>
+      <div class="about-col-title">지속가능성</div>
+      <div class="about-col-text">
+        2025년 탄소중립 달성 목표<br>
+        재활용 가능 패키징 100% 전환<br>
+        동물실험 완전 배제 정책<br>
+        제주 청정원료 보호 농가 협력
+      </div>
+    </div>
+    <div>
+      <div class="about-col-title">R&D 현황</div>
+      <div class="about-col-text">
+        연구개발 투자 매출 대비 18%<br>
+        피부과학 전문인력 42명<br>
+        등록 특허 28건, 출원 중 15건<br>
+        서울대병원 공동연구 진행 중
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Newsletter -->
+<section class="newsletter" id="contact">
+  <p class="section-label reveal">Stay Connected</p>
+  <h2 class="section-title reveal">새로운 소식을<br><em>먼저 받아보세요</em></h2>
+  <p class="newsletter-sub reveal">신제품 출시, 성분 이야기, 프로모션 소식을 이메일로 받아보실 수 있습니다.</p>
+  <div class="newsletter-form reveal">
+    <input type="email" placeholder="이메일 주소를 입력해주세요">
+    <button>구독하기</button>
+  </div>
+  <p style="font-size:0.72rem;color:var(--taupe);margin-top:1rem;" class="reveal">개인정보는 안전하게 보호되며 언제든지 구독 해지가 가능합니다.</p>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="footer-logo">Multi<span>Bridge</span></div>
+      <div class="footer-tagline">"Bridging Nature & Science"</div>
+      <p style="font-size:0.78rem;line-height:1.7;max-width:280px;margin-bottom:1.5rem;">
+        주식회사 멀티브릿지<br>
+        서울특별시 강남구 테헤란로 123<br>
+        사업자등록번호: 123-45-67890
+      </p>
+      <div class="footer-social">
+        <a href="#" class="social-btn">IN</a>
+        <a href="#" class="social-btn">IG</a>
+        <a href="#" class="social-btn">YT</a>
+        <a href="#" class="social-btn">KK</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Products</div>
+      <ul class="footer-links">
+        <li><a href="#">Moisture Bridge</a></li>
+        <li><a href="#">Green Bridge</a></li>
+        <li><a href="#">Gold Bridge</a></li>
+        <li><a href="#">Shield Bridge</a></li>
+        <li><a href="#">Body Bridge</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Company</div>
+      <ul class="footer-links">
+        <li><a href="#">Brand Story</a></li>
+        <li><a href="#">R&D Center</a></li>
+        <li><a href="#">Sustainability</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Press</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Support</div>
+      <ul class="footer-links">
+        <li><a href="#">고객센터</a></li>
+        <li><a href="#">B2B 파트너십</a></li>
+        <li><a href="#">수출 문의</a></li>
+        <li><a href="#">개인정보처리방침</a></li>
+        <li><a href="#">이용약관</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 MultiBridge Co., Ltd. All Rights Reserved.</span>
+    <div class="footer-certify">
+      <span class="cert-tag">ISO 22716</span>
+      <span class="cert-tag">EWG Certified</span>
+      <span class="cert-tag">Vegan</span>
+      <span class="cert-tag">Cruelty Free</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Custom cursor
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.transform = `translate(${mx - 4}px, ${my - 4}px)`;
+});
+
+function animateRing() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  ring.style.transform = `translate(${rx - 16}px, ${ry - 16}px)`;
+  requestAnimationFrame(animateRing);
+}
+animateRing();
+
+document.querySelectorAll('a, button').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursor.style.transform += ' scale(2)';
+    ring.style.opacity = '0.3';
+    ring.style.transform += ' scale(1.5)';
+  });
+  el.addEventListener('mouseleave', () => {
+    ring.style.opacity = '0.6';
+  });
+});
+
+// Navbar scroll
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 60);
+});
+
+// Reveal on scroll
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => {
+        entry.target.classList.add('visible');
+      }, i * 60);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12 });
+
+reveals.forEach(el => observer.observe(el));
+
+// Newsletter
+document.querySelector('.newsletter-form button').addEventListener('click', () => {
+  const input = document.querySelector('.newsletter-form input');
+  if (input.value) {
+    input.value = '';
+    input.placeholder = '구독해 주셔서 감사합니다! 🌿';
+    setTimeout(() => { input.placeholder = '이메일 주소를 입력해주세요'; }, 3000);
+  }
+});
+
+// Hero parallax
+window.addEventListener('scroll', () => {
+  const heroLeft = document.querySelector('.hero-left');
+  const scroll = window.scrollY;
+  if (heroLeft && scroll < window.innerHeight) {
+    heroLeft.style.transform = `translateY(${scroll * 0.12}px)`;
+  }
+});
+</script>
+</body>
+</html>
